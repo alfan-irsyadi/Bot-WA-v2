@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Whatsapp API</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono&display=swap" rel="stylesheet">
+  <style>
+    #app{
+      font-family: 'Roboto Mono', monospace;
+    }
+  </style>
+</head>
+<body>
+  <!--INI NAVBAR -->
+  <nav class="navbar sticky-top navbar-dark bg-dark">
+    <div class="container-fluid">
+      <a class="navbar-brand mr-0 pr-0 col-3" href="#">
+        <img src="images/wa_big.png" alt="" width="40" height="40" class="d-inline-block align-middle">
+        <span style="color: #25D366">WhatsApp</span>
+      </a>
+      <div class="navbar-brand kon col-8 text-end"><span>Bot_WA_v2.0</span>
+      </div>
+    </div>
+  </nav>
+  <div class="m-3" id="app">
+    <div id="status"><h3>Status: <span  id="well"></span></h3></div>
+    
+    <div class="text-center">
+      <img src="" class="rounded"  alt="Ini adalah qrcode" id="qrcode">
+    </div>
+
+     <div id = "kartu" class="card h-100">
+    <div class="card-header"><h4>logs:</h4></div>
+    <div class="card-body" data-bs-spy="scroll" data-bs-target="#kartu" data-bs-offset="0" class="scrollspy-example" tabindex="0" id="log">
+      <ul class="logs text-muted"></ul>
+
+    </div>
+  </div>
+    
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" integrity="sha512-894YE6QWD5I59HgZOGReFYm4dnWc1Qt5NtvYSaNcOP+u1T9qYdvdihz0PPSiiqn/+/3e7Jo4EaG7TubfWGUrMQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.1.3/socket.io.min.js" integrity="sha512-fB746S+jyTdN2LSWbYSGP2amFYId226wpOeV4ApumcDpIttPxvk1ZPOgnwqwQziRAtZkiFJVx9F64GLAtoIlCQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script>
+   $(document).ready(function(){
+
+
+      $("#qrcode").hide();
+      $("#status").hide();
+    var socket = io.connect('http://localhost:8000', {path: "/socket.io"});
+        var fieldNameElement = document.getElementById("well");
+
+    socket.on('status', (msg)=>{
+      let stat;
+      $("#status").show();
+      switch(msg){
+        case 'qr': $("#kartu").addClass('border-primary'); stat = "Scan QR..."; break;
+        case 'ready': $("#kartu").addClass('border-success'); stat = "Ready..."; break;
+        case 'auth': $("#kartu").addClass('border-danger'); stat = "Authenticating..."; break;
+      }
+      fieldNameElement.textContent = stat;
+    })
+
+    socket.on('message', (msg)=>{
+      console.log(msg)
+      $("#status").hide();
+      $('.logs').append($('<li>').text(msg))
+    })
+
+    socket.on('qr', (url)=>{
+      $('#qrcode').show();
+      // fieldNameElement.textContent = "Scan QR....";
+      
+      $("#qrcode").attr('src',url)
+    })
+
+    socket.on('auth', ()=>{
+      // fieldNameElement.textContent = "Auth";
+      $('#qrcode').hide();
+    })
+    socket.on('ready', (msg)=>{
+      // fieldNameElement.textContent = msg;
+      // $('#well').update($('<h1>').text('alfan'))
+    })
+  })
+</script>
+</body>
+</html>
